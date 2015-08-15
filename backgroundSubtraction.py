@@ -22,7 +22,7 @@ from skimage.morphology import reconstruction
 import skimage.io as io
 #io.use_plugin('tifffile')
 
-def background_subraction(filename, radius, height):
+def background_subtraction(filename, radius, height):
     #load the image
     image = img_as_float(io.imread(filename))
     #apply median filter with given radius
@@ -59,7 +59,7 @@ def background_subraction(filename, radius, height):
 
     fig.tight_layout()
     #save summary image
-    plt.savefig('summary'+filename+'.png', format='png')
+    plt.savefig('foo.png', format='png')
 
     fig, ax = plt.subplots(figsize=(10, 10))
     ax.imshow(hdome, cmap=plt.cm.gray)
@@ -76,9 +76,9 @@ def background_subraction(filename, radius, height):
 
     io.imsave('test_16bit.tif', im)
     return
- 
-filename ='Snap-2138-Image Export-08_c2_ORG.tif'
-radius = 2
-height = 0.90
+   
+#filename ="Snap-2066-Image Export-01_c1_ORG.tif"
+#radius = 2
+#height = 0.90
 
-background_subraction(filename, radius, height)
+#background_subraction(filename, radius, height)
