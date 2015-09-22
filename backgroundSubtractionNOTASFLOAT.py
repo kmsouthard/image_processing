@@ -82,18 +82,18 @@ plt.imsave('out.tif', hdome, cmap=plt.cm.gray)
 #result = hdome.fromarray((visual * 255).astype(numpy.uint8))
 #result.save('out.tiff')
 
-from skimage.filters import threshold_adaptive
-thresh = threshold_out(hdome, 41, 10)
-binary = hdome > thresh
+#from skimage.filters import threshold_adaptive
+#thresh = threshold_out(hdome, 41, 10)
+#binary = hdome > thresh
 
-fig, ax = plt.subplots(figsize = (10, 10))
-ax.imshow(binary, cmap=plt.cm.gray, interpolation = 'nearest')
+#fig, ax = plt.subplots(figsize = (10, 10))
+#ax.imshow(binary, cmap=plt.cm.gray, interpolation = 'nearest')
 
-from skimage import morphology
-cleaned = morphology.remove_small_objects(binary, 10)
+#from skimage import morphology
+#cleaned = morphology.remove_small_objects(binary, 10)
 
-fig, ax = plt.subplots(figsize=(4, 3))
-ax.imshow(cleaned, cmap=plt.cm.gray, interpolation='nearest')
-ax.axis('off')
-ax.set_title('Removing small objects')
-plt.show()
+#fig, ax = plt.subplots(figsize=(4, 3))
+#ax.imshow(cleaned, cmap=plt.cm.gray, interpolation='nearest')
+#ax.axis('off')
+#ax.set_title('Removing small objects')
+#plt.show()

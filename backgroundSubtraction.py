@@ -23,7 +23,7 @@ from skimage.filters import threshold_otsu
 import skimage.io as io
 #io.use_plugin('tifffile')
 
-#fn ="Snap-2066-Image Export-01_c1_ORG.tif"
+#fn ="Snap-2237-Image Export-04_c1_ORG.tif"
 #radius = 2
 #height = 0.8
 
@@ -32,7 +32,9 @@ def background_subtraction(filename, radius, height):
     image = img_as_float(io.imread(filename))
     #apply median filter with given radius
     image = median_filter(image, radius)
-    seed = np.copy(image) - height
+    #calulate the hdome height using "height as a percent of image max
+    h = (height)*image.max()
+    seed = np.copy(image) - h
     mask = image
     dilated = reconstruction(seed, mask, method='dilation')
     hdome = image - dilated
@@ -85,8 +87,8 @@ def segmentation(im_dict, filename, path):
     return
 
 #bs=  background_subtraction(fn, radius, height)
-#plot_summary(bs, fn)
-#save_output(bs, fn)
+#plot_summary(bs, fn, "/Users/southk/dataAnalysis/Focal Adhesion Analysis/output")
+#save_output(bs, fn, "/Users/southk/dataAnalysis/Focal Adhesion Analysis/output")
   
 #filename ="Snap-2066-Image Export-01_c1_ORG.tif"
 #radius = 2

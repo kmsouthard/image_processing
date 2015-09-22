@@ -11,16 +11,16 @@ path = '/Users/southk/dataAnalysis/Focal Adhesion Analysis/2014.6 pax with all p
 
 pattern = '*c1_ORG.tif'
 radius = 2
-height = 0.80
+height = 0.75
 i = 0
+
 for (path, dirs, files) in os.walk(path):
+    i += 1
     for filename in fnmatch.filter(files, pattern):
         print filename
         backSub = background_subtraction(os.path.join(path, filename), radius, height)
         plot_summary(backSub, filename, path)
         save_output(backSub, filename, path)
-        segmentation(backSub, filename, path)
-        i += 1
-        if i > 10:
-            break
-        
+        #segmentation(backSub, filename, path)
+    if i > 2:
+        break    
