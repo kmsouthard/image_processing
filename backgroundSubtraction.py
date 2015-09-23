@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 from scipy.ndimage import median_filter 
 from skimage import io, exposure, img_as_uint, img_as_float
-from skimage.morphology import reconstruction
+from skimage.morphology import reconstruction, remove_small_objects
 from skimage.filters import threshold_otsu
 
 import skimage.io as io
@@ -26,6 +26,7 @@ import skimage.io as io
 #fn ="Snap-2237-Image Export-04_c1_ORG.tif"
 #radius = 2
 #height = 0.8
+#minSize = 20
 
 def background_subtraction(filename, radius, height):
     #load the image
@@ -79,16 +80,23 @@ def save_output(im_dict, filename, path):
     io.imsave(path+'output'+filename[:-4]+'.png', im)
     return
     
-def segmentation(im_dict, filename, path):
+def segmentation(im_dict, filename, path, minSize):
     io.use_plugin('freeimage')
     thresh = threshold_otsu(im_dict['hdome'])
     binary = im_dict['hdome'] > thresh
-    io.imsave(path+'binary'+filename[:-4]+'.png', binary)
-    return
+    binary = remove_small_objects(binary, min_size= minSize)
+    plt.figure(1)
+    plt.imshow(binary.astype(float))
+    plt.savefig(path+"binary_output"+filename[:-4]+'.png', format='png')
+    plt.close()
+    return binary
+
+#testing code
 
 #bs=  background_subtraction(fn, radius, height)
-#plot_summary(bs, fn, "/Users/southk/dataAnalysis/Focal Adhesion Analysis/output")
-#save_output(bs, fn, "/Users/southk/dataAnalysis/Focal Adhesion Analysis/output")
+#plot_summary(bs, fn, "/Users/southk/dataAnalysis/Focal Adhesion Analysis/output/")
+#save_output(bs, fn, "/Users/southk/dataAnalysis/Focal Adhesion Analysis/output/")
+#binary = segmentation(bs, fn, "/Users/southk/dataAnalysis/Focal Adhesion Analysis/output/", 20)
   
 #filename ="Snap-2066-Image Export-01_c1_ORG.tif"
 #radius = 2

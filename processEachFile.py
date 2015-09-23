@@ -7,12 +7,16 @@ from backgroundSubtraction import segmentation
 
 path = '/Users/southk/dataAnalysis/Focal Adhesion Analysis/2014.6 pax with all processed/RAW'
 
-#process channel 1 (paxcillin)
+#process channel 1 (paxcillin) background subtraction
+#save background subtracted image
+#perform segmentation on image
+#return binary image (as bool)
 
 pattern = '*c1_ORG.tif'
 radius = 2
 height = 0.75
 i = 0
+minSize = 15
 
 for (path, dirs, files) in os.walk(path):
     i += 1
@@ -21,6 +25,6 @@ for (path, dirs, files) in os.walk(path):
         backSub = background_subtraction(os.path.join(path, filename), radius, height)
         plot_summary(backSub, filename, path)
         save_output(backSub, filename, path)
-        #segmentation(backSub, filename, path)
-    if i > 2:
+        mask = segmentation(backSub, filename, path, minSize)
+    if i > 10:
         break    
