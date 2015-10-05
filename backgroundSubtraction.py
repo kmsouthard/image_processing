@@ -17,8 +17,9 @@ import matplotlib.pyplot as plt
 
 from scipy.ndimage import median_filter 
 from skimage import io, exposure, img_as_uint, img_as_float
-from skimage.morphology import reconstruction, remove_small_objects
+from skimage.morphology import reconstruction, remove_small_objects, dilation
 from skimage.filters import threshold_otsu
+from scipy import ndimage as ndi
 
 import skimage.io as io
 #io.use_plugin('tifffile')
@@ -80,9 +81,10 @@ def save_output(im_dict, filename, path):
     io.imsave(path+'output'+filename[:-4]+'.png', im)
     return
     
-def segmentation(im_dict, filename, path, minSize):
+def segmentation_FA(im_dict, filename, path, minSize):
     io.use_plugin('freeimage')
-    thresh = threshold_otsu(im_dict['hdome'])
+    smooth = median_filter(im_dict['hdome'], 2)
+    thresh = threshold_otsu(smooth)
     binary = im_dict['hdome'] > thresh
     binary = remove_small_objects(binary, min_size= minSize)
     plt.figure(1)
@@ -91,6 +93,20 @@ def segmentation(im_dict, filename, path, minSize):
     plt.close()
     return binary
 
+def segmentation_snap(im_dict, filename, path, minSize):
+    io.use_plugin('freeimage')
+    smooth = median_filter(im_dict['hdome'], 2)
+    thresh = threshold_otsu(smooth)
+    binary = im_dict['hdome'] > thresh
+    dilate = dilation(binary) 
+    fill = ndi.binary_fill_holes(dilate)
+    cell = remove_small_objects(dilation(fill), min_size= minSize)
+    plt.figure(1)
+    plt.imshow(cell.astype(float))
+    plt.savefig(path+"binary_output"+filename[:-4]+'.png', format='png')
+    plt.close()
+    return cell
+    
 #testing code
 
 #bs=  background_subtraction(fn, radius, height)
