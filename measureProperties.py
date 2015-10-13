@@ -20,6 +20,21 @@ from scipy import ndimage as ndi
 from skimage.morphology import watershed
 from skimage.feature import peak_local_max
 
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+
+from skimage.draw import ellipse
+from skimage.measure import label, regionprops
+from skimage.transform import rotate
+import pandas as pd
+
+#script needs to take in image and return measurements of properites: focal adhesion area
+#fluoresence intensity FAs, Fluoresence intensity SNAP tag at FAs (mean or median?)
+#normalized FAs
+#number of FA per cell
+# total FA area per cell, total FA area normalizedto cell area
+
 fn ="Snap-2237-Image Export-04_c1_ORG.tif"
 radius = 2
 height = 0.7
@@ -30,57 +45,39 @@ path = "/Users/southk/dataAnalysis/Focal Adhesion Analysis/output/"
 backSub = background_subtraction(fn, radius, height)
 plot_summary(backSub, fn, path)
 save_output(backSub, fn, path)
-image = segmentation_FA(backSub, fn, path, minSize)
+mask = segmentation_FA(backSub, fn, path, minSize)
+image = backSub['hdome']
 
-#clean up binary image
-bw = closing(image, square(2))
+def measure_FA(mask, image, filename, path):    
+    #clean up binary image
+    bw = opening(mask, square(2))
 
-#remove artifacts connected to image border
-cleared = bw.copy()
-clear_border(cleared)
+    #remove artifacts connected to image border
+    cleared = bw.copy()
+    clear_border(cleared)
 
-#label image regions
-#distance = ndi.distance_transform_edt(cleared)
-#
-#local_maxi = peak_local_max(distance, indices=False, footprint=np.ones((4, 4)),
-#                            labels=cleared)
-#markers = ndi.label(local_maxi)[0]
-#labels = watershed(-distance, markers, mask=cleared)
-#
-label_image = label(cleared)
-borders = np.logical_xor(bw, cleared)
-label_image[borders] = -1
-image_label_overlay = label2rgb(label_image, image=image)
+    #label image regions
+    label_image = label(cleared)
+    borders = np.logical_xor(bw, cleared)
+    label_image[borders] = -1
+    image_label_overlay = label2rgb(label_image, image=image)
 
-fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(6, 6))
-ax.imshow(image_label_overlay)
+    fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(6, 6))
+    ax.imshow(image_label_overlay)
 
-for region in regionprops(label_image):
-    # skip small images
-    if region.area < 10:
-       continue
-    
-    #draw rectangle around segmented coins
-    minr, minc, maxr, maxc = region.bbox
-    rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr,
+    for region in regionprops(label_image):   
+    #draw rectangle around segmented adhesions
+        minr, minc, maxr, maxc = region.bbox
+        rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr,
                               fill=False, edgecolor='red', linewidth=2)
-    ax.add_patch(rect)
+        ax.add_patch(rect)
 
-plt.show()
+    plt.show()
 
-regions = regionprops(label_image, intensity_image = backSub['hdome'])
+    regions = regionprops(label_image, intensity_image = image)
 
-fig, ax = plt.subplots()
-ax.imshow(image, cmap=plt.cm.gray)
-
-import math
-import matplotlib.pyplot as plt
-import numpy as np
-
-from skimage.draw import ellipse
-from skimage.measure import label, regionprops
-from skimage.transform import rotate
-import pandas as pd
+    fig, ax = plt.subplots()
+    ax.imshow(image, cmap=plt.cm.gray)
 
 #properites data frame set up
 properties = []
@@ -116,11 +113,11 @@ for props in regions:
                             radius,
                             props.area])
         indices.append(props.label)
-if not len(indices):
-    all_props = pd.DataFrame([], index=[])
-indices = pd.Index(indices, name='label')
-properties = pd.DataFrame(properties, index=indices, columns=columns)
-properties['Intensity'] /= properties['Intensity'].max()
 
-ax.axis((0, 484, 511, 0))
-plt.show()
+    indices = pd.Index(indices, name='label')
+    properties = pd.DataFrame(properties, index=indices, columns=columns)
+    properties['Intensity'] /= properties['Intensity'].max()
+
+    ax.axis((0, 484, 511, 0))
+    plt.show()
+    
